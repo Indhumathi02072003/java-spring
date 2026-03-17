@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: attendance-service
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    root: INFO
+    com.ic.attendance_service: DEBUG
+server:
+  port: 8083
+ic:
+  security:
+    public-paths:
+      - ^/actuator/.*$
+      - ^/health$
+    protected-paths:
+    # Attendance – employee self access
+      - path: ^/attendance/check-in/.*$
+        roles: [EMPLOYEE, ADMIN]
+
+      - path: ^/attendance/check-out/.*$
+        roles: [EMPLOYEE, ADMIN]
+
+      - path: ^/attendance/me$
+        roles: [EMPLOYEE, ADMIN]
+
+    # Attendance – HR / Manager only
+      - path: ^/attendance/[^/]+$
+        roles: [ADMIN]
+
+    # Leave – employee
+      - path: ^/leave/apply$
+        roles: [EMPLOYEE, ADMIN]
+
+      - path: ^/leave/[^/]+$
+        roles: [EMPLOYEE, ADMIN]
+
+    # Leave – HR / Manager only
+      - path: ^/leave/.*/approve$
+        roles: [ADMIN]
+
+      - path: ^/leave/.*/reject$
+        roles: [ADMIN]
